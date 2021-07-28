@@ -1,37 +1,35 @@
 def commit_id
 pipeline {
 	agent any
-
-	stages {
-
-		stage('Preparation') {
-			steps {
-				checkout scm
-				sh "git rev-parse --short HEAD> .git/commit-id"
+	stages{
+		stage('preparation'){
+			steps{  checkout scm
+				sh "git rev-parse --short HEAD > .git/commit-id"
 				script {
-					commit_id = readFile('.git/commit-id').trim()
-				}
+				commit_id = readFile ('.git/commit-id').trim()
+					}
+				}	
 			}
-		}
-
-		stage('Image Build') {
-			steps {
-				echo 'Building ...'
-				sh 'scp -r -i $(minikube ssh-key) ./* docker@$(minikube ip):~/'
-				sh "minikube ssh 'docker build -t webapp:${commit_id} ./'"
-				echo 'Build Complete'
+		stage('build'){
+			steps{ echo '1. BUILDING MAVEN WOKRLOAD'
+				sh "mvn clean"
+				sh "mvn install"
+				echo 'Build completed' }	
 			}
-		}
-
-		stage('Deploy') {
-			steps {
-				echo 'Deploying to Kubernetes'
- 				sh "sed -i -r 's|richardchesterwood/k8s-fleetman-webapp-angular:release2|webapp:${commit_id}$|' ./assignment_6/workloads.yaml"
-				sh 'kubectl get all'
-				sh 'kubectl apply -f ./assignment_6/'
-				sh 'kubectl get all'
-				echo 'Deployment Complete'
-			}	
-		}
+		
+		stage('image'){
+			steps{ echo '2. BUILDING DOCKER image'
+				sh "docker build -t position-simulator:${commit_id} ."
+				echo 'Build completed'}	
+			}
+		stage('deploy'){
+			steps{ echo '3. DEPLOYMENT to kubernetes'
+				sh "sed -i -r 's|richardchesterwood/k8s-fleetman-webapp-angular:release2|position-simulator:${commit_id}|' ./assignment_6/workloads.yaml"
+				sh "kubectl get all"
+				sh "kubectl apply -f ./assignment_6/workloads.yaml "
+				sh "kubectl get all"
+				echo "deployment completed"	
+			}
+	}
 	}
 }
