@@ -14,7 +14,7 @@ pipeline {
 			steps{ echo '1. BUILDING MAVEN WOKRLOAD'
 				sh "mvn clean install"
 				echo 'Build completed' }	
-			}
+	 		}
 		
 		stage('image'){
 			steps{ echo '2. BUILDING DOCKER image'
@@ -31,4 +31,5 @@ pipeline {
 			}
 	}
 	}
-}
+} 
+
