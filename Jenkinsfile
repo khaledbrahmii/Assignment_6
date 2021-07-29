@@ -23,7 +23,7 @@ pipeline {
 			}
 		stage('deploy'){
 			steps{ echo '3. DEPLOYMENT to kubernetes'
-				sh "sed -i -r 's|richardchesterwood/position-simulator:release2|position-simulator:${commit_id}|' ./assignment_6/workloads.yaml"
+				sh "sed -i -r 's|richardchesterwood/position-simulator:release3|position-simulator:${commit_id}|' ./assignment_6/workloads.yaml"
 				sh "kubectl get all"
 				sh "kubectl apply -f ./assignment_6/workloads.yaml "
 				sh "kubectl get all"
